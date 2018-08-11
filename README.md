@@ -6,8 +6,8 @@
 - pointergen: Contains code for the final model 
 - Analyze Results.ipynb: Notebook of analysis of the results from each model
 - reference_data: 
-	- Generated output: https://drive.google.com/file/d/1jg9-CQ9ioXV_8aVt5uyuvQwD9n3MK-5r/view?usp=sharing
-	- Model: https://drive.google.com/file/d/1rBy5ZaKhUIrw1CqlcD5VCf9G2-Sfb4b8/view?usp=sharing
+	- Generated output: https://drive.google.com/file/d/1NiSXv3LYwttZBjBy-nTYBzlbBkHfPrMa/view?usp=sharing
+	- Model: https://drive.google.com/file/d/184Db7Lty9ACbSxf7glV2ePQ8M3Jl0ORu/view?usp=sharing
 
 
 ## Baseline model (Sequence to sequence with attention)
