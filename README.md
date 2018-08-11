@@ -6,8 +6,8 @@
 - pointergen: Contains code for the final model 
 - Analyze Results.ipynb: Notebook of analysis of the results from each model
 - reference_data: 
-	- Generated output: Link
-	- Model: Link
+	- Generated output: https://drive.google.com/file/d/1jg9-CQ9ioXV_8aVt5uyuvQwD9n3MK-5r/view?usp=sharing
+	- Model: https://drive.google.com/file/d/1rBy5ZaKhUIrw1CqlcD5VCf9G2-Sfb4b8/view?usp=sharing
 
 
 ## Baseline model (Sequence to sequence with attention)
@@ -17,7 +17,7 @@
 - baseline_view_specific_example.ipynb: Notebook to view a specific example.Provide a number between 0 to 10000 (depending on how the data is setup)
 
 
-## Pointer generator model with coverage (Pointer generator with coverage)
+## Pointer generator model with coverage (Baseline + Pointer generator with coverage)
 - pointergen_train.ipynb: Notebook with code to train the model.
 - pointergen_view_sample.ipynb: Notebook to view a random example.This uses the trained model to generate a summary.
 - pointergen_compute_results.ipynb: Notebook to compute the ROUGE scores for the generated summary.

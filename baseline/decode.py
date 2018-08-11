@@ -45,14 +45,14 @@ class BeamSearchDecoder(object):
 
         self._rouge_ref_dir = os.path.join(self._decode_dir, "reference")
         if not os.path.exists(self._rouge_ref_dir): os.mkdir(self._rouge_ref_dir)
-        self._rouge_dec_dir = os.path.join(self._decode_dir, "decoded")
+        self._rouge_dec_dir = os.path.join(self._decode_dir, "generated")
         if not os.path.exists(self._rouge_dec_dir): os.mkdir(self._rouge_dec_dir)            
         
         
     def decode(self,batches):
         counter = 0
         for batch in batches:
-            if(counter < 10):
+            if(counter < 500):
                 original_article = batch.original_articles[0]  
                 original_abstract = batch.original_abstracts[0]
                 original_abstract_sents = batch.original_abstracts_sents[0]
@@ -79,7 +79,7 @@ class BeamSearchDecoder(object):
 
                 decoded_output = ' '.join(decoded_words) # single string
 
-                self.write_for_rouge(original_abstract_sents, decoded_words, counter) 
+                self.write_for_rouge(original_abstract_sents, decoded_words, counter,original_article) 
                 counter += 1     
             else:
                 break
@@ -132,7 +132,8 @@ class BeamSearchDecoder(object):
 
         decoded_output = ' '.join(decoded_words) # single string
 
-
+        self.write_for_rouge(original_abstract_sents, decoded_words, 0,original_article) 
+        self.rouge_eval()        
         print_results(article_withunks, abstract_withunks, decoded_output)    
         self.write_for_attnvis(article_withunks, abstract_withunks, 
                                decoded_words, best_hypothesis.attn_dists, 
@@ -152,7 +153,7 @@ class BeamSearchDecoder(object):
         print('======================================================================')
             
             
-    def write_for_rouge(self, reference_sents, decoded_words, ex_index):
+    def write_for_rouge(self, reference_sents, decoded_words, ex_index,original_article):
         decoded_sents = []
         data = {}
         while len(decoded_words) > 0:
@@ -168,7 +169,25 @@ class BeamSearchDecoder(object):
         decoded_sents = [make_html_safe(w) for w in decoded_sents]
         reference_sents = [make_html_safe(w) for w in reference_sents]
 
-        data['hyp'] = ' '.join(decoded_sents)
-        data['ref'] = ' '.join(reference_sents)
+        orig_article = original_article#' '.join(original_article)
+        rouge_hyp = ' '.join(decoded_sents)
+        rouge_ref = ' '.join(reference_sents)
+
+        # Write to file
+        article_file = os.path.join(self._rouge_ref_dir, "%06d_article.txt" % ex_index)
+        ref_file = os.path.join(self._rouge_ref_dir, "%06d_reference.txt" % ex_index)
+        decoded_file = os.path.join(self._rouge_dec_dir, "%06d_generated.txt" % ex_index)
+
+        with open(article_file, "w") as f:
+            f.write(orig_article)
+        
+        with open(ref_file, "w") as f:
+            f.write(rouge_ref)
+
+        with open(decoded_file, "w") as f:
+            f.write(rouge_hyp)
+
+        data['hyp'] = rouge_hyp
+        data['ref'] = rouge_ref
         self.rouge_data.append(data)
-        tf.logging.info("Added %i to file" % ex_index)            
+        tf.logging.info("Added %i to file" % ex_index)
