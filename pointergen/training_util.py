@@ -243,6 +243,53 @@ def get_decode_data(hps,vocab,data_path,randomize=False):
     tf.logging.info('Creating batches..COMPLETE') 
     return batches
 
+
+def get_specific_example(hps,vocab,example_number):
+    
+    file_id, number = divmod(example_number,1000)
+    path = '/home/ubuntu/W266/final_0/W266_Final/data/final_chunked/validation_%03d.bin'%  file_id
+    print(f'Fetching example {number} from: {path}') 
+    filelist = glob.glob(path) 
+    inputs = []
+    total_examples = 0
+    total_batches = 0    
+    for f in filelist:
+        reader = open(f, 'rb')
+        while True:
+            len_bytes = reader.read(8)
+            if not len_bytes: break 
+            str_len = struct.unpack('q', len_bytes)[0]
+            example_str = struct.unpack('%ds' % str_len, reader.read(str_len))[0]
+            e = example_pb2.Example.FromString(example_str)
+            try:
+                article_text = e.features.feature['article'].bytes_list.value[0].decode() 
+                if len(article_text)==0: 
+                    #tf.logging.warning('Found an example with empty article text. Skipping it.')
+                    pass
+                else:
+                    abstract_text = e.features.feature['abstract'].bytes_list.value[0].decode()
+                    abstract_sentences = [sent.strip() for sent in data.abstract2sents(abstract_text)]
+                    example = Example(article_text,abstract_sentences,vocab,hps)
+                    inputs.append(example)       
+                    total_examples = total_examples + 1
+            except ValueError:
+                #tf.logging.error('Failed to get article or abstract from example')            
+                continue
+    batches = []
+    tf.logging.info('Creating batches..') 
+    example = inputs[number]
+    b = [example for _ in range(hps.beam_size)]
+    batches.append(Batch(b,hps,vocab)) 
+    total_batches = 1
+    total_examples = 1
+        
+    tf.logging.info('[TOTAL Batches]  : %i',total_batches) 
+    tf.logging.info('[TOTAL Examples] : %i',total_examples) 
+    tf.logging.info('Creating batches..COMPLETE') 
+    return batches
+
+
+
 def pretty_timedelta(fmt="%d:%02d:%02d", since=None, until=None):
     """Pretty-print a timedelta, using the given format string."""
     since = since or time.time()
